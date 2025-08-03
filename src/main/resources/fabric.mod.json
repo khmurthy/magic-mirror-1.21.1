@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "magic-mirror",
+	"version": "${version}",
+	"name": "Magic Mirror",
+	"description": "Adds a craftable magic mirror to the game that returns you to your home.",
+	"authors": [
+		"Kieran Murthy"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/magic-mirror/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.khmurthy.magicmirror.MagicMirror"
+		],
+		"fabric-datagen": [
+			"com.khmurthy.magicmirror.MagicMirrorDataGenerator"
+		],
+		"client": [
+			"com.khmurthy.magicmirror.MagicMirrorClient"
+		]
+	},
+	"mixins": [
+		"magic-mirror.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
