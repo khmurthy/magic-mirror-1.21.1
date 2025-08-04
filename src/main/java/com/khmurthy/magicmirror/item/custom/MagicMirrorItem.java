@@ -1,28 +1,22 @@
 package com.khmurthy.magicmirror.item.custom;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.Map;
+import java.util.Objects;
 
 public class MagicMirrorItem extends Item {
 
@@ -61,7 +55,7 @@ public class MagicMirrorItem extends Item {
                 spawnDim = World.OVERWORLD;
             }
 
-            ServerWorld targetWorld = serverPlayer.getServer().getWorld(spawnDim != null ? spawnDim : World.OVERWORLD);
+            ServerWorld targetWorld = Objects.requireNonNull(serverPlayer.getServer()).getWorld(spawnDim != null ? spawnDim : World.OVERWORLD);
 
             if (targetWorld != null) {
                 serverPlayer.teleport(targetWorld,
