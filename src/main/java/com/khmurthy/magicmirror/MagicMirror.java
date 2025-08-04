@@ -1,5 +1,6 @@
 package com.khmurthy.magicmirror;
 
+import com.khmurthy.magicmirror.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -11,6 +12,6 @@ public class MagicMirror implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-
+		ModItems.registerModItems();
 	}
 }
