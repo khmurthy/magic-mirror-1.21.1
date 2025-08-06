@@ -1,5 +1,6 @@
 package com.khmurthy.magicmirror.item.custom;
 
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -34,15 +35,9 @@ public class MagicMirrorItem extends Item {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         // Begin using item
         user.setCurrentHand(hand);
-        user.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 3, 1));
-        //If user is sneaking, store a new position
-        if (user.isSneaking()) {
-            posX = user.getX();
-            posY = user.getY();
-            posZ = user.getZ();
-            dimension = user.getWorld().getRegistryKey();
-            world.playSoundFromEntity(user, SoundEvents.ENTITY_WARDEN_AMBIENT, SoundCategory.PLAYERS, 1.0f, 1.0f);
-        }
+        user.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 120, 0, false, false));
+        // Play sound
+        world.playSoundFromEntity(user, SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.PLAYERS, 1.0f, 1.0f);
 
         return TypedActionResult.consume(user.getStackInHand(hand));
     }
@@ -55,48 +50,58 @@ public class MagicMirrorItem extends Item {
 
     @Override
     public SoundEvent getDrinkSound() {
-        return SoundEvents.ENTITY_WARDEN_HEARTBEAT;
+        return SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME;
     }
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
         // Animation to show while using
-        return UseAction.DRINK;
+        return UseAction.BOW;
     }
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (!world.isClient && user instanceof ServerPlayerEntity serverPlayer) {
 
-            // Default to world spawn if player has no bed set
-            if (posY < 0.0) {
-                posX = world.getSpawnPos().getX();
-                posY = world.getSpawnPos().getY();
-                posZ = world.getSpawnPos().getZ();
-                dimension = World.OVERWORLD;
+        //If user is sneaking, store a new position
+        if (user.isSneaking()) {
+            posX = user.getX();
+            posY = user.getY();
+            posZ = user.getZ();
+            dimension = user.getWorld().getRegistryKey();
+            world.playSoundFromEntity(user, SoundEvents.ENTITY_WARDEN_AMBIENT, SoundCategory.PLAYERS, 1.0f, 1.0f);
+        } else{
+            if (!world.isClient && user instanceof ServerPlayerEntity serverPlayer) {
+
+                // Default to world spawn if player has not set one already
+                if (posY < 0.0) {
+                    posX = world.getSpawnPos().getX();
+                    posY = world.getSpawnPos().getY();
+                    posZ = world.getSpawnPos().getZ();
+                    dimension = World.OVERWORLD;
+                }
+
+                ServerWorld targetWorld = Objects.requireNonNull(serverPlayer.getServer()).getWorld(dimension != null ? dimension : World.OVERWORLD);
+
+                if (targetWorld != null) {
+                    serverPlayer.teleport(targetWorld,
+                            posX,
+                            posY,
+                            posZ,
+                            serverPlayer.getYaw(),
+                            serverPlayer.getPitch());
+                }
+
+                // Damage the item
+                if (!serverPlayer.getAbilities().creativeMode) {
+                    stack.damage(1, serverPlayer, EquipmentSlot.MAINHAND);
+                }
+
+                // Play visual effect
+                ServerWorld serverWorld = serverPlayer.getServerWorld();
+                serverWorld.spawnParticles(ParticleTypes.SCULK_SOUL,
+                        serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                        30, 0.3, 0.1, 0.3, 0.0);
             }
-
-            ServerWorld targetWorld = Objects.requireNonNull(serverPlayer.getServer()).getWorld(dimension != null ? dimension : World.OVERWORLD);
-
-            if (targetWorld != null) {
-                serverPlayer.teleport(targetWorld,
-                        posX + 0.5,
-                        posY,
-                        posZ + 0.5,
-                        serverPlayer.getYaw(),
-                        serverPlayer.getPitch());
-            }
-
-            // Damage the item
-            //if (!serverPlayer.getAbilities().creativeMode) {
-            //    stack.damage(1, user, user.);
-            //}
-
-            // Play visual effect
-            ServerWorld serverWorld = serverPlayer.getServerWorld();
-            serverWorld.spawnParticles(ParticleTypes.SCULK_SOUL,
-                    serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                    30, 0.3, 0.1, 0.3, 0.0);
         }
 
         // Play sound
